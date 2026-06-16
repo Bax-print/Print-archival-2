@@ -9,10 +9,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 
-$availability_options = function_exists( 'print_archival_release_availability_options' ) ? print_archival_release_availability_options() : array();
 $digitization_options = function_exists( 'print_archival_digitization_status_options' ) ? print_archival_digitization_status_options() : array();
-$availability         = get_post_meta( get_the_ID(), '_pa_release_availability', true );
-$availability_label   = isset( $availability_options[ $availability ] ) ? $availability_options[ $availability ] : '';
+$sale_status          = get_post_meta( get_the_ID(), '_pa_release_availability', true );
+$sale_status_label    = function_exists( 'print_archival_get_release_sale_status_label' ) ? print_archival_get_release_sale_status_label( $sale_status ) : '';
 $related_artist_id    = absint( get_post_meta( get_the_ID(), '_pa_release_related_artist', true ) );
 $edition_size         = get_post_meta( get_the_ID(), '_pa_release_edition_size', true );
 $medium               = get_post_meta( get_the_ID(), '_pa_release_medium', true );
@@ -20,7 +19,7 @@ $digitization_status  = get_post_meta( get_the_ID(), '_pa_release_digitization_s
 $digitization_label   = isset( $digitization_options[ $digitization_status ] ) ? $digitization_options[ $digitization_status ] : '';
 $product_url          = function_exists( 'print_archival_get_release_product_url' ) ? print_archival_get_release_product_url( get_the_ID() ) : '';
 $release_types        = get_the_term_list( get_the_ID(), 'pa_release_type', '', ', ' );
-$archive_statuses     = get_the_term_list( get_the_ID(), 'pa_archive_status', '', ', ' );
+$archive_status_terms = function_exists( 'print_archival_get_release_archive_status_terms' ) ? print_archival_get_release_archive_status_terms( get_the_ID() ) : array();
 ?>
 
 <main id="primary" class="site-main">
@@ -33,8 +32,8 @@ $archive_statuses     = get_the_term_list( get_the_ID(), 'pa_archive_status', ''
 					<h1 class="single-title"><?php the_title(); ?></h1>
 
 					<div class="single-meta">
-						<?php if ( $availability_label ) : ?>
-							<p><span><?php esc_html_e( 'Availability', 'print-archival' ); ?></span><?php echo esc_html( $availability_label ); ?></p>
+						<?php if ( $sale_status_label ) : ?>
+							<p><span><?php esc_html_e( 'Sale Status', 'print-archival' ); ?></span><?php echo esc_html( $sale_status_label ); ?></p>
 						<?php endif; ?>
 
 						<?php if ( $related_artist_id ) : ?>
@@ -46,7 +45,7 @@ $archive_statuses     = get_the_term_list( get_the_ID(), 'pa_archive_status', ''
 						<?php endif; ?>
 					</div>
 
-					<?php if ( $product_url && 'available' === $availability ) : ?>
+					<?php if ( $product_url && 'available' === $sale_status ) : ?>
 						<div class="hero-actions">
 							<a class="button" href="<?php echo esc_url( $product_url ); ?>"><?php esc_html_e( 'View Available Work', 'print-archival' ); ?></a>
 						</div>
@@ -71,9 +70,9 @@ $archive_statuses     = get_the_term_list( get_the_ID(), 'pa_archive_status', ''
 					<div class="archive-record">
 						<h2><?php esc_html_e( 'Archive Record', 'print-archival' ); ?></h2>
 						<dl>
-							<?php if ( $availability_label ) : ?>
-								<dt><?php esc_html_e( 'Availability', 'print-archival' ); ?></dt>
-								<dd><?php echo esc_html( $availability_label ); ?></dd>
+							<?php if ( $sale_status_label ) : ?>
+								<dt><?php esc_html_e( 'Sale Status', 'print-archival' ); ?></dt>
+								<dd><?php echo esc_html( $sale_status_label ); ?></dd>
 							<?php endif; ?>
 
 							<?php if ( $release_types ) : ?>
@@ -81,9 +80,19 @@ $archive_statuses     = get_the_term_list( get_the_ID(), 'pa_archive_status', ''
 								<dd><?php echo wp_kses_post( $release_types ); ?></dd>
 							<?php endif; ?>
 
-							<?php if ( $archive_statuses ) : ?>
-								<dt><?php esc_html_e( 'Archive Status', 'print-archival' ); ?></dt>
-								<dd><?php echo wp_kses_post( $archive_statuses ); ?></dd>
+							<?php if ( ! empty( $archive_status_terms ) ) : ?>
+								<dt><?php esc_html_e( 'Archive Statuses', 'print-archival' ); ?></dt>
+								<dd>
+									<?php
+									$archive_status_links = array_map(
+										function( $term ) {
+											return '<a href="' . esc_url( get_term_link( $term ) ) . '">' . esc_html( $term->name ) . '</a>';
+										},
+										$archive_status_terms
+									);
+									echo wp_kses_post( implode( ', ', $archive_status_links ) );
+									?>
+								</dd>
 							<?php endif; ?>
 
 							<?php if ( $related_artist_id ) : ?>
