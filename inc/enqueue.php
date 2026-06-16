@@ -28,6 +28,15 @@ function print_archival_enqueue_assets() {
 		wp_get_theme()->get( 'Version' )
 	);
 
+	if ( class_exists( 'WooCommerce' ) ) {
+		wp_enqueue_style(
+			'print-archival-woocommerce',
+			get_template_directory_uri() . '/assets/css/woocommerce.css',
+			array( 'print-archival-main' ),
+			wp_get_theme()->get( 'Version' )
+		);
+	}
+
 	// Main JS file.
 	wp_enqueue_script(
 		'print-archival-main',
