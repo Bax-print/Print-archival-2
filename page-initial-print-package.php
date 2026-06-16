@@ -13,14 +13,23 @@ get_header();
 <main id="primary" class="site-main">
 
 	<section class="page-hero page-hero--tattoo">
-		<div class="page-hero__inner">
-			<p class="eyebrow">Tattoo Archival / Initial Print Package</p>
+		<div class="page-hero__inner page-hero__grid">
+			<div>
+				<p class="eyebrow">Tattoo Archival / Initial Print Package</p>
 
-			<h1>Test your first tattoo artwork release with a focused run of 10 archival prints.</h1>
+				<h1>Test your first tattoo artwork release with a focused run of 10 archival prints.</h1>
 
-			<p class="hero-copy">
-				A straightforward onboarding package for tattoo artists who want to review a physical proof, learn the production process, and test a first sellable print run.
-			</p>
+				<p class="hero-copy">
+					A straightforward onboarding package for tattoo artists who want to review a physical proof, learn the production process, and test a first sellable print run.
+				</p>
+			</div>
+
+			<aside class="hero-offer-card" aria-label="<?php esc_attr_e( 'Initial Print Package offer', 'print-archival' ); ?>">
+				<p class="eyebrow">Initial Print Package</p>
+				<h2>$200 + tax</h2>
+				<p>Includes 10 archival prints produced around our standard 11 &times; 17 print format.</p>
+				<a class="button" href="<?php echo esc_url( home_url( '/product/initial-print-package/' ) ); ?>">Order Initial Print Package</a>
+			</aside>
 		</div>
 	</section>
 
