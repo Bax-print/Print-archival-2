@@ -21,6 +21,26 @@ function print_archival_setup() {
 	// Enable responsive embeds.
 	add_theme_support( 'responsive-embeds' );
 
+	// Prepare WooCommerce to use the theme's existing header, footer, typography, and product media features.
+	add_theme_support(
+		'woocommerce',
+		array(
+			'thumbnail_image_width' => 640,
+			'single_image_width'    => 960,
+			'product_grid'          => array(
+				'default_rows'    => 3,
+				'min_rows'        => 1,
+				'max_rows'        => 6,
+				'default_columns' => 3,
+				'min_columns'     => 1,
+				'max_columns'     => 4,
+			),
+		)
+	);
+	add_theme_support( 'wc-product-gallery-zoom' );
+	add_theme_support( 'wc-product-gallery-lightbox' );
+	add_theme_support( 'wc-product-gallery-slider' );
+
 	// Enable HTML5 markup support.
 	add_theme_support(
 		'html5',
