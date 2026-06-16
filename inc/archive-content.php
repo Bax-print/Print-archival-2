@@ -104,7 +104,9 @@ function print_archival_register_archive_taxonomies() {
 			'labels' => array(
 				'name'          => __( 'Archive Statuses', 'print-archival' ),
 				'singular_name' => __( 'Archive Status', 'print-archival' ),
+				'menu_name'     => __( 'Archive Statuses', 'print-archival' ),
 			),
+			'description'       => __( 'Use for preservation state only, such as Digitized, Stored, Public Record, Private Record, or Preservation Copy. Sale status is managed separately in Release / Archive Work Details.', 'print-archival' ),
 			'public'            => true,
 			'hierarchical'      => true,
 			'show_admin_column' => true,
@@ -116,15 +118,49 @@ function print_archival_register_archive_taxonomies() {
 add_action( 'init', 'print_archival_register_archive_taxonomies' );
 
 /**
- * Release availability labels.
+ * Seed recommended archive preservation terms without deleting existing data.
+ */
+function print_archival_seed_archive_status_terms() {
+	$terms = array(
+		'Digitized'         => 'digitized',
+		'Stored'            => 'stored',
+		'Public Record'     => 'public-record',
+		'Private Record'    => 'private-record',
+		'Preservation Copy' => 'preservation-copy',
+	);
+
+	foreach ( $terms as $name => $slug ) {
+		if ( ! term_exists( $slug, 'pa_archive_status' ) ) {
+			wp_insert_term( $name, 'pa_archive_status', array( 'slug' => $slug ) );
+		}
+	}
+}
+add_action( 'init', 'print_archival_seed_archive_status_terms', 20 );
+
+/**
+ * Release sale status labels.
  */
 function print_archival_release_availability_options() {
 	return array(
-		'available'     => __( 'Available', 'print-archival' ),
-		'sold_out'      => __( 'Sold Out', 'print-archival' ),
-		'archived_only' => __( 'Archived Only', 'print-archival' ),
+		'available'     => __( 'Available for Purchase', 'print-archival' ),
 		'coming_soon'   => __( 'Coming Soon', 'print-archival' ),
+		'sold_out'      => __( 'Sold Out', 'print-archival' ),
+		'archived_only' => __( 'Not Currently for Sale / Archive Record Only', 'print-archival' ),
 	);
+}
+
+/**
+ * Public sale status labels.
+ */
+function print_archival_get_release_sale_status_label( $status ) {
+	$labels = array(
+		'available'     => __( 'Available for Purchase', 'print-archival' ),
+		'coming_soon'   => __( 'Coming Soon', 'print-archival' ),
+		'sold_out'      => __( 'Sold Out', 'print-archival' ),
+		'archived_only' => __( 'Archive Record Only', 'print-archival' ),
+	);
+
+	return isset( $labels[ $status ] ) ? $labels[ $status ] : '';
 }
 
 /**
@@ -137,6 +173,39 @@ function print_archival_digitization_status_options() {
 		'documented'  => __( 'Documented', 'print-archival' ),
 		'preserved'   => __( 'Preserved', 'print-archival' ),
 		'in_progress' => __( 'In Progress', 'print-archival' ),
+	);
+}
+
+/**
+ * Return public archive status terms, excluding old sale-like terms without deleting them.
+ */
+function print_archival_get_release_archive_status_terms( $post_id ) {
+	$terms = get_the_terms( $post_id, 'pa_archive_status' );
+
+	if ( empty( $terms ) || is_wp_error( $terms ) ) {
+		return array();
+	}
+
+	$blocked = array(
+		'available',
+		'sold-out',
+		'sold_out',
+		'coming-soon',
+		'coming_soon',
+		'archived-only',
+		'archived_only',
+		'archived',
+	);
+
+	return array_values(
+		array_filter(
+			$terms,
+			function( $term ) use ( $blocked ) {
+				$name_key = sanitize_title( $term->name );
+
+				return ! in_array( $term->slug, $blocked, true ) && ! in_array( $name_key, $blocked, true );
+			}
+		)
 	);
 }
 
@@ -176,7 +245,7 @@ function print_archival_render_release_details_metabox( $post ) {
 	wp_nonce_field( 'print_archival_save_release_details', 'print_archival_release_details_nonce' );
 
 	$related_artist      = absint( get_post_meta( $post->ID, '_pa_release_related_artist', true ) );
-	$availability        = get_post_meta( $post->ID, '_pa_release_availability', true );
+	$sale_status         = get_post_meta( $post->ID, '_pa_release_availability', true );
 	$product_url         = get_post_meta( $post->ID, '_pa_release_product_url', true );
 	$product_id          = absint( get_post_meta( $post->ID, '_pa_release_product_id', true ) );
 	$edition_size        = get_post_meta( $post->ID, '_pa_release_edition_size', true );
@@ -194,12 +263,13 @@ function print_archival_render_release_details_metabox( $post ) {
 		</select>
 	</p>
 	<p>
-		<label for="pa_release_availability"><strong><?php esc_html_e( 'Availability Status', 'print-archival' ); ?></strong></label><br>
+		<label for="pa_release_availability"><strong><?php esc_html_e( 'Sale Status', 'print-archival' ); ?></strong></label><br>
 		<select class="widefat" id="pa_release_availability" name="pa_release_availability">
 			<?php foreach ( print_archival_release_availability_options() as $value => $label ) : ?>
-				<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $availability ? $availability : 'archived_only', $value ); ?>><?php echo esc_html( $label ); ?></option>
+				<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $sale_status ? $sale_status : 'archived_only', $value ); ?>><?php echo esc_html( $label ); ?></option>
 			<?php endforeach; ?>
 		</select>
+		<em><?php esc_html_e( 'This is the sale state only. Use Archive Statuses for preservation state.', 'print-archival' ); ?></em>
 	</p>
 	<p><label for="pa_release_product_url"><strong><?php esc_html_e( 'Optional WooCommerce Product URL', 'print-archival' ); ?></strong></label><br><input class="widefat" type="url" id="pa_release_product_url" name="pa_release_product_url" value="<?php echo esc_url( $product_url ); ?>"></p>
 	<p><label for="pa_release_product_id"><strong><?php esc_html_e( 'Optional WooCommerce Product ID', 'print-archival' ); ?></strong></label><br><input class="widefat" type="number" min="0" step="1" id="pa_release_product_id" name="pa_release_product_id" value="<?php echo esc_attr( $product_id ); ?>"></p>
