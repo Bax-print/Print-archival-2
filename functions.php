@@ -12,6 +12,7 @@ $print_archival_includes = array(
 	'inc/enqueue.php',
 	'inc/theme-functions.php',
 	'inc/template-tags.php',
+	'inc/archive-content.php',
 );
 
 foreach ( $print_archival_includes as $print_archival_include ) {
