@@ -30,7 +30,7 @@ function print_archival_register_archive_content_types() {
 			'show_in_rest' => true,
 			'menu_icon'    => 'dashicons-admin-users',
 			'supports'     => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
-			'has_archive'  => true,
+			'has_archive'  => 'archive-artists',
 			'rewrite'      => array( 'slug' => 'artists' ),
 		)
 	);
@@ -132,11 +132,11 @@ function print_archival_release_availability_options() {
  */
 function print_archival_digitization_status_options() {
 	return array(
-		''             => __( 'Not specified', 'print-archival' ),
-		'digitized'    => __( 'Digitized', 'print-archival' ),
-		'documented'   => __( 'Documented', 'print-archival' ),
-		'preserved'    => __( 'Preserved', 'print-archival' ),
-		'in_progress'  => __( 'In Progress', 'print-archival' ),
+		''            => __( 'Not specified', 'print-archival' ),
+		'digitized'   => __( 'Digitized', 'print-archival' ),
+		'documented'  => __( 'Documented', 'print-archival' ),
+		'preserved'   => __( 'Preserved', 'print-archival' ),
+		'in_progress' => __( 'In Progress', 'print-archival' ),
 	);
 }
 
@@ -144,23 +144,8 @@ function print_archival_digitization_status_options() {
  * Add admin meta boxes.
  */
 function print_archival_add_archive_content_metaboxes() {
-	add_meta_box(
-		'pa_artist_details',
-		__( 'Artist Details', 'print-archival' ),
-		'print_archival_render_artist_details_metabox',
-		'pa_artist',
-		'normal',
-		'high'
-	);
-
-	add_meta_box(
-		'pa_release_details',
-		__( 'Release / Archive Work Details', 'print-archival' ),
-		'print_archival_render_release_details_metabox',
-		'pa_release',
-		'normal',
-		'high'
-	);
+	add_meta_box( 'pa_artist_details', __( 'Artist Details', 'print-archival' ), 'print_archival_render_artist_details_metabox', 'pa_artist', 'normal', 'high' );
+	add_meta_box( 'pa_release_details', __( 'Release / Archive Work Details', 'print-archival' ), 'print_archival_render_release_details_metabox', 'pa_release', 'normal', 'high' );
 }
 add_action( 'add_meta_boxes', 'print_archival_add_archive_content_metaboxes' );
 
@@ -176,28 +161,11 @@ function print_archival_render_artist_details_metabox( $post ) {
 	$cap_participant = get_post_meta( $post->ID, '_pa_artist_cap_participant', true );
 	$notes           = get_post_meta( $post->ID, '_pa_artist_notes', true );
 	?>
-	<p>
-		<label for="pa_artist_location"><strong><?php esc_html_e( 'Location', 'print-archival' ); ?></strong></label><br>
-		<input class="widefat" type="text" id="pa_artist_location" name="pa_artist_location" value="<?php echo esc_attr( $location ); ?>">
-	</p>
-	<p>
-		<label for="pa_artist_instagram_url"><strong><?php esc_html_e( 'Instagram URL', 'print-archival' ); ?></strong></label><br>
-		<input class="widefat" type="url" id="pa_artist_instagram_url" name="pa_artist_instagram_url" value="<?php echo esc_url( $instagram_url ); ?>">
-	</p>
-	<p>
-		<label for="pa_artist_website_url"><strong><?php esc_html_e( 'Website URL', 'print-archival' ); ?></strong></label><br>
-		<input class="widefat" type="url" id="pa_artist_website_url" name="pa_artist_website_url" value="<?php echo esc_url( $website_url ); ?>">
-	</p>
-	<p>
-		<label>
-			<input type="checkbox" name="pa_artist_cap_participant" value="1" <?php checked( '1', $cap_participant ); ?>>
-			<?php esc_html_e( 'Participating in The Canadian Archive Project', 'print-archival' ); ?>
-		</label>
-	</p>
-	<p>
-		<label for="pa_artist_notes"><strong><?php esc_html_e( 'Internal / Archive Notes', 'print-archival' ); ?></strong></label><br>
-		<textarea class="widefat" id="pa_artist_notes" name="pa_artist_notes" rows="5"><?php echo esc_textarea( $notes ); ?></textarea>
-	</p>
+	<p><label for="pa_artist_location"><strong><?php esc_html_e( 'Location', 'print-archival' ); ?></strong></label><br><input class="widefat" type="text" id="pa_artist_location" name="pa_artist_location" value="<?php echo esc_attr( $location ); ?>"></p>
+	<p><label for="pa_artist_instagram_url"><strong><?php esc_html_e( 'Instagram URL', 'print-archival' ); ?></strong></label><br><input class="widefat" type="url" id="pa_artist_instagram_url" name="pa_artist_instagram_url" value="<?php echo esc_url( $instagram_url ); ?>"></p>
+	<p><label for="pa_artist_website_url"><strong><?php esc_html_e( 'Website URL', 'print-archival' ); ?></strong></label><br><input class="widefat" type="url" id="pa_artist_website_url" name="pa_artist_website_url" value="<?php echo esc_url( $website_url ); ?>"></p>
+	<p><label><input type="checkbox" name="pa_artist_cap_participant" value="1" <?php checked( '1', $cap_participant ); ?>> <?php esc_html_e( 'Participating in The Canadian Archive Project', 'print-archival' ); ?></label></p>
+	<p><label for="pa_artist_notes"><strong><?php esc_html_e( 'Internal / Archive Notes', 'print-archival' ); ?></strong></label><br><textarea class="widefat" id="pa_artist_notes" name="pa_artist_notes" rows="5"><?php echo esc_textarea( $notes ); ?></textarea></p>
 	<?php
 }
 
@@ -214,15 +182,7 @@ function print_archival_render_release_details_metabox( $post ) {
 	$edition_size        = get_post_meta( $post->ID, '_pa_release_edition_size', true );
 	$medium              = get_post_meta( $post->ID, '_pa_release_medium', true );
 	$digitization_status = get_post_meta( $post->ID, '_pa_release_digitization_status', true );
-	$artists             = get_posts(
-		array(
-			'post_type'      => 'pa_artist',
-			'post_status'    => 'publish',
-			'posts_per_page' => 200,
-			'orderby'        => 'title',
-			'order'          => 'ASC',
-		)
-	);
+	$artists             = get_posts( array( 'post_type' => 'pa_artist', 'post_status' => 'publish', 'posts_per_page' => 200, 'orderby' => 'title', 'order' => 'ASC' ) );
 	?>
 	<p>
 		<label for="pa_release_related_artist"><strong><?php esc_html_e( 'Related Artist', 'print-archival' ); ?></strong></label><br>
@@ -241,22 +201,10 @@ function print_archival_render_release_details_metabox( $post ) {
 			<?php endforeach; ?>
 		</select>
 	</p>
-	<p>
-		<label for="pa_release_product_url"><strong><?php esc_html_e( 'Optional WooCommerce Product URL', 'print-archival' ); ?></strong></label><br>
-		<input class="widefat" type="url" id="pa_release_product_url" name="pa_release_product_url" value="<?php echo esc_url( $product_url ); ?>">
-	</p>
-	<p>
-		<label for="pa_release_product_id"><strong><?php esc_html_e( 'Optional WooCommerce Product ID', 'print-archival' ); ?></strong></label><br>
-		<input class="widefat" type="number" min="0" step="1" id="pa_release_product_id" name="pa_release_product_id" value="<?php echo esc_attr( $product_id ); ?>">
-	</p>
-	<p>
-		<label for="pa_release_edition_size"><strong><?php esc_html_e( 'Edition Size', 'print-archival' ); ?></strong></label><br>
-		<input class="widefat" type="text" id="pa_release_edition_size" name="pa_release_edition_size" value="<?php echo esc_attr( $edition_size ); ?>">
-	</p>
-	<p>
-		<label for="pa_release_medium"><strong><?php esc_html_e( 'Medium / Material', 'print-archival' ); ?></strong></label><br>
-		<input class="widefat" type="text" id="pa_release_medium" name="pa_release_medium" value="<?php echo esc_attr( $medium ); ?>">
-	</p>
+	<p><label for="pa_release_product_url"><strong><?php esc_html_e( 'Optional WooCommerce Product URL', 'print-archival' ); ?></strong></label><br><input class="widefat" type="url" id="pa_release_product_url" name="pa_release_product_url" value="<?php echo esc_url( $product_url ); ?>"></p>
+	<p><label for="pa_release_product_id"><strong><?php esc_html_e( 'Optional WooCommerce Product ID', 'print-archival' ); ?></strong></label><br><input class="widefat" type="number" min="0" step="1" id="pa_release_product_id" name="pa_release_product_id" value="<?php echo esc_attr( $product_id ); ?>"></p>
+	<p><label for="pa_release_edition_size"><strong><?php esc_html_e( 'Edition Size', 'print-archival' ); ?></strong></label><br><input class="widefat" type="text" id="pa_release_edition_size" name="pa_release_edition_size" value="<?php echo esc_attr( $edition_size ); ?>"></p>
+	<p><label for="pa_release_medium"><strong><?php esc_html_e( 'Medium / Material', 'print-archival' ); ?></strong></label><br><input class="widefat" type="text" id="pa_release_medium" name="pa_release_medium" value="<?php echo esc_attr( $medium ); ?>"></p>
 	<p>
 		<label for="pa_release_digitization_status"><strong><?php esc_html_e( 'Archive / Digitization Status', 'print-archival' ); ?></strong></label><br>
 		<select class="widefat" id="pa_release_digitization_status" name="pa_release_digitization_status">
