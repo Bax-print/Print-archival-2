@@ -28,11 +28,18 @@ function print_archival_enqueue_assets() {
 		wp_get_theme()->get( 'Version' )
 	);
 
+	wp_enqueue_style(
+		'print-archival-site-restores',
+		get_template_directory_uri() . '/assets/css/site-restores.css',
+		array( 'print-archival-main' ),
+		wp_get_theme()->get( 'Version' )
+	);
+
 	if ( class_exists( 'WooCommerce' ) ) {
 		wp_enqueue_style(
 			'print-archival-woocommerce',
 			get_template_directory_uri() . '/assets/css/woocommerce.css',
-			array( 'print-archival-main' ),
+			array( 'print-archival-site-restores' ),
 			wp_get_theme()->get( 'Version' )
 		);
 	}
