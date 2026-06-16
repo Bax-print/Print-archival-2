@@ -100,6 +100,33 @@
 	width: 100%;
 }
 
+/* ================================
+   Archive Content Records
+================================ */
+
+.archive-card-meta {
+	margin: 0 0 12px;
+	font-size: 13px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--pa-accent) !important;
+}
+
+.archive-card-meta a {
+	color: inherit;
+	border-bottom: 1px solid currentColor;
+}
+
+.archive-record a {
+	border-bottom: 1px solid currentColor;
+}
+
+.archive-record a:hover {
+	color: var(--pa-accent);
+	text-decoration: none;
+}
+
 @media (max-width: 1100px) {
 	.site-footer__inner--full {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
