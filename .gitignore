@@ -1,0 +1,14 @@
+.DS_Store
+node_modules/
+vendor/
+*.log
+*.zip
+*.tar
+*.tar.gz
+*.sql
+*.bak
+*.backup
+.env
+wp-config.php
+wp-content/cache/
+wp-content/uploads/
